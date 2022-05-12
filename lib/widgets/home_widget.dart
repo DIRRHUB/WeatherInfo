@@ -1,6 +1,6 @@
-// ignore_for_file: prefer_const_constructors
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:weather_info/models/main_model.dart';
 import 'package:weather_info/resources/colors.dart';
 import 'package:weather_info/resources/images.dart';
 
@@ -11,25 +11,37 @@ class HomeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: AppColors.primaryColor,
-        child: ListView(
-          // ignore: prefer_const_literals_to_create_immutables
-          children: [
-            SizedBox(height: 32),
-            HeadWidget(),
-            SizedBox(height: 32),
-            RowHorizontalValues(),
-            SizedBox(height: 32),
-            ColumnValues(),
-          ],
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primaryLightColor,
+              AppColors.primaryDarkColor,
+            ],
+          ),
+        ),
+        child: ScrollConfiguration(
+          behavior: CustomBehavior(),
+          child: ListView(
+            children:const[
+              SizedBox(height: 32),
+              HeadContent(),
+              SizedBox(height: 32),
+              RowHorizontalValues(),
+              SizedBox(height: 32),
+              ColumnValues(),
+              SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class HeadWidget extends StatelessWidget {
-  const HeadWidget({
+class HeadContent extends StatelessWidget {
+  const HeadContent({
     Key? key,
   }) : super(key: key);
 
@@ -38,14 +50,20 @@ class HeadWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Location", style: TextStyle(fontSize: 48)),
-        SizedBox(height: 16),
-        Text("100", style: TextStyle(fontSize: 80)),
-        Text(
+        const FittedBox(
+          child: Text("Location",
+              style: TextStyle(
+                fontSize: 48,
+              )),
+        ),
+        const SizedBox(height: 16),
+        Text(context.watch<MainModel>().getTemp.toString(),
+            style: const TextStyle(fontSize: 80)),
+        const Text(
           "STATE",
           style: TextStyle(fontSize: 16),
         ),
-        Text(
+        const Text(
           "TEMP_MAX, TEMP_MIN",
           style: TextStyle(fontSize: 16),
         ),
@@ -135,27 +153,29 @@ class RowHorizontalValues extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: 160,
-        color: AppColors.primaryColor,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 6,
-          itemBuilder: (BuildContext context, int index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Container(
-                width: 80,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 1,
-                    color: AppColors.primaryDarkColor,
+        child: ScrollConfiguration(
+          behavior: CustomBehavior(),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 6,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: Container(
+                  width: 80,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 1,
+                      color: AppColors.primaryDarkColor,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    color: AppColors.primaryLightColor,
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                  color: AppColors.primaryLightColor,
+                  child: const HourValues(),
                 ),
-                child: const HourValues(),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -223,13 +243,13 @@ class ColumnValues extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
+            const DayValues(),
+            const DayValues(),
+            const DayValues(),
+            const DayValues(),
+            const DayValues(),
+            const DayValues(),
+            const DayValues(),
           ],
         ),
       ),
@@ -309,5 +329,13 @@ class VerticalDividerWidget extends StatelessWidget {
         color: Colors.grey,
       ),
     );
+  }
+}
+
+class CustomBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(
+      BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
   }
 }
