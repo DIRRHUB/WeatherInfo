@@ -10,8 +10,3 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
       name: json['name'] as String,
       localtime: json['localtime'] as String,
     );
-
-Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
-      'name': instance.name,
-      'localtime': instance.localtime,
-    };

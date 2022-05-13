@@ -7,14 +7,13 @@ part of 'app_forecast.dart';
 // **************************************************************************
 
 AppForecast _$AppForecastFromJson(Map<String, dynamic> json) => AppForecast(
-      location: Location.fromJson(json['location'] as Map<String, dynamic>),
-      current: Current.fromJson(json['current'] as Map<String, dynamic>),
-      forecast: Forecast.fromJson(json['forecast'] as Map<String, dynamic>),
+      location: json['location'] == null
+          ? null
+          : Location.fromJson(json['location'] as Map<String, dynamic>),
+      current: json['current'] == null
+          ? null
+          : Current.fromJson(json['current'] as Map<String, dynamic>),
+      forecast: json['forecast'] == null
+          ? null
+          : Forecast.fromJson(json['forecast'] as Map<String, dynamic>),
     );
-
-Map<String, dynamic> _$AppForecastToJson(AppForecast instance) =>
-    <String, dynamic>{
-      'location': instance.location,
-      'current': instance.current,
-      'forecast': instance.forecast,
-    };

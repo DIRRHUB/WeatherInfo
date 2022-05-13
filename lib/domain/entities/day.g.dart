@@ -13,11 +13,3 @@ Day _$DayFromJson(Map<String, dynamic> json) => Day(
       maxWind: (json['maxwind_kph'] as num).toDouble(),
       condition: Condition.fromJson(json['condition'] as Map<String, dynamic>),
     );
-
-Map<String, dynamic> _$DayToJson(Day instance) => <String, dynamic>{
-      'maxtemp_c': instance.maxTemp,
-      'mintemp_c': instance.minTemp,
-      'avgtemp_c': instance.avgTemp,
-      'maxwind_kph': instance.maxWind,
-      'condition': instance.condition,
-    };

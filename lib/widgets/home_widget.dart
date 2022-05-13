@@ -1,71 +1,102 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:weather_info/domain/api_clients/dio_client.dart';
+import 'package:weather_info/domain/entities/app_forecast.dart';
 import 'package:weather_info/models/main_model.dart';
 import 'package:weather_info/resources/colors.dart';
 import 'package:weather_info/resources/images.dart';
 
-class HomeWidget extends StatelessWidget {
+class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
 
   @override
+  State<HomeWidget> createState() => _HomeWidgetState();
+}
+
+class _HomeWidgetState extends State<HomeWidget> {
+  @override
   Widget build(BuildContext context) {
+    DioClient client = DioClient(); //!
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.primaryLightColor,
-              AppColors.primaryDarkColor,
-            ],
-          ),
-        ),
-        child: ScrollConfiguration(
-          behavior: CustomBehavior(),
-          child: ListView(
-            children:const[
-              SizedBox(height: 32),
-              HeadContent(),
-              SizedBox(height: 32),
-              RowHorizontalValues(),
-              SizedBox(height: 32),
-              ColumnValues(),
-              SizedBox(height: 32),
-            ],
-          ),
-        ),
-      ),
+      body: FutureBuilder(
+          future: client.getInfo("ZHYTOMYR"),
+          builder:
+              (BuildContext context, AsyncSnapshot<AppForecast?> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                  child: CircularProgressIndicator(strokeWidth: 3));
+            } else if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasData) {
+                context.watch<MainModel>().setInfo(snapshot.data);
+                return Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.primaryLightColor,
+                        AppColors.primaryDarkColor,
+                      ],
+                    ),
+                  ),
+                  child: ScrollConfiguration(
+                    behavior: CustomBehavior(),
+                    child: ListView(
+                      children: const [
+                        SizedBox(height: 32),
+                        HeadContent(),
+                        SizedBox(height: 32),
+                        RowHorizontalValues(),
+                        SizedBox(height: 32),
+                        ColumnValues(),
+                        SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            }
+            //choose location
+            return Center(child: Text(snapshot.error.toString()));
+          }),
     );
   }
 }
 
 class HeadContent extends StatelessWidget {
-  const HeadContent({
-    Key? key,
-  }) : super(key: key);
+  const HeadContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const FittedBox(
-          child: Text("Location",
-              style: TextStyle(
-                fontSize: 48,
-              )),
+        FittedBox(
+          child: Text(
+            context.watch<MainModel>().location?.name ?? "",
+            style: const TextStyle(
+              fontSize: 48,
+            ),
+          ),
         ),
         const SizedBox(height: 16),
-        Text(context.watch<MainModel>().getTemp.toString(),
-            style: const TextStyle(fontSize: 80)),
-        const Text(
-          "STATE",
-          style: TextStyle(fontSize: 16),
+        Text(
+          context.watch<MainModel>().current?.currentTemp.toString() ?? "",
+          style: const TextStyle(fontSize: 80),
         ),
-        const Text(
-          "TEMP_MAX, TEMP_MIN",
-          style: TextStyle(fontSize: 16),
+        Text(
+          context.watch<MainModel>().getTodayStateForecast ?? "",
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        Text(
+          context.watch<MainModel>().getTodayMinMaxTemperature ?? "",
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w300,
+          ),
         ),
       ],
     );
@@ -150,14 +181,14 @@ class RowHorizontalValues extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
-        height: 160,
+        height: 180,
         child: ScrollConfiguration(
           behavior: CustomBehavior(),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: 6,
+            itemCount: context.watch<MainModel>().todayHoursInfo?.length,
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -171,7 +202,7 @@ class RowHorizontalValues extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     color: AppColors.primaryLightColor,
                   ),
-                  child: const HourValues(),
+                  child: HourValues(index),
                 ),
               );
             },
@@ -183,42 +214,45 @@ class RowHorizontalValues extends StatelessWidget {
 }
 
 class HourValues extends StatelessWidget {
-  const HourValues({Key? key}) : super(key: key);
+  final int index;
+  const HourValues(this.index, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: const [
-        SizedBox(height: 8),
+      children: [
+        const SizedBox(height: 8),
         Text(
-          "HH",
-          style: TextStyle(
+          context.watch<MainModel>().todayHoursInfo![index].hour,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w300,
           ),
         ),
-        Expanded(child: Divider()),
+        const Expanded(child: Divider()),
         Text(
-          "TEMP",
-          style: TextStyle(
+          "Temp\n" + context.watch<MainModel>().todayHoursInfo![index].temp,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
-        Expanded(child: Divider()),
+        const Expanded(child: Divider()),
         Text(
-          "WIND",
-          style: TextStyle(
+          "Wind\n" + context.watch<MainModel>().todayHoursInfo![index].wind,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
-        Expanded(child: Divider()),
+        const Expanded(child: Divider()),
         Image(
-          image: AppImages.day113,
+          image: context.watch<MainModel>().todayHoursInfo![index].imageCode,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -242,14 +276,14 @@ class ColumnValues extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const DayValues(),
-            const DayValues(),
-            const DayValues(),
-            const DayValues(),
-            const DayValues(),
-            const DayValues(),
-            const DayValues(),
+          children: const [
+            DayValues(),
+            DayValues(),
+            DayValues(),
+            DayValues(),
+            DayValues(),
+            DayValues(),
+            DayValues(),
           ],
         ),
       ),

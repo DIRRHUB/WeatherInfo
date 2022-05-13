@@ -7,11 +7,11 @@ part 'day.g.dart';
 class Day {
   @JsonKey(name: 'maxtemp_c')
   final double maxTemp;
-   @JsonKey(name: 'mintemp_c')
+  @JsonKey(name: 'mintemp_c')
   final double minTemp;
-   @JsonKey(name: 'avgtemp_c')
+  @JsonKey(name: 'avgtemp_c')
   final double avgTemp;
-   @JsonKey(name: 'maxwind_kph')
+  @JsonKey(name: 'maxwind_kph')
   final double maxWind;
   final Condition condition;
 

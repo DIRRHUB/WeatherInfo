@@ -7,15 +7,16 @@ part 'app_forecast.g.dart';
 
 @JsonSerializable()
 class AppForecast {
-  final Location location;
-  final Current current;
-  final Forecast forecast;
+  final Location? location;
+  final Current? current;
+  final Forecast? forecast;
 
   AppForecast({
-    required this.location,
-    required this.current,
-    required this.forecast,
+    this.location,
+    this.current,
+    this.forecast,
   });
 
-  factory AppForecast.fromJson(Map<String, dynamic> json) => _$AppForecastFromJson(json);
+  factory AppForecast.fromJson(Map<String, dynamic> json) =>
+      _$AppForecastFromJson(json);
 }

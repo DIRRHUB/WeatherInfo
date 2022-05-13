@@ -11,9 +11,3 @@ DayObject _$DayObjectFromJson(Map<String, dynamic> json) => DayObject(
       day: Day.fromJson(json['day'] as Map<String, dynamic>),
       hour: json['hour'] as List<dynamic>,
     );
-
-Map<String, dynamic> _$DayObjectToJson(DayObject instance) => <String, dynamic>{
-      'date': instance.date,
-      'day': instance.day,
-      'hour': instance.hour,
-    };
