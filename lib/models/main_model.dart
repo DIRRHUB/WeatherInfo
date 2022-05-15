@@ -13,9 +13,10 @@ class MainModel with ChangeNotifier {
   Forecast? forecast;
   List? forecastday;
   Map? todayObject;
-  List<HourInfo>? todayHoursInfo;
+  List<TimeInfo>? todayHoursInfo;
   String? stateForecast;
   String? tempMax, tempMin;
+  List<TimeInfo>? daysTimeInfo;
 
   final DioClient _client = DioClient();
 
@@ -23,20 +24,20 @@ class MainModel with ChangeNotifier {
   List? get getForecastday => forecastday;
   String? get getTodayStateForecast => stateForecast;
   String? get getTodayMinMaxTemperature =>
-      "Max temp: " + (tempMax ?? "?") + ", Min temp: " + (tempMin ?? "");
+      "Min temp: " + (tempMin ?? "") + ", Max temp: " + (tempMax ?? "?");
 
   void getInfo(String locationString) async {
     appForecast = await _client.getInfo(locationString);
-    processDate();
+    processData();
     notifyListeners();
   }
 
   void setInfo(AppForecast? appForecast) {
     this.appForecast = appForecast;
-    processDate();
+    processData();
   }
 
-  void processDate() {
+  void processData() {
     forecast = appForecast?.forecast;
     location = appForecast?.location;
     current = appForecast?.current;
@@ -45,29 +46,48 @@ class MainModel with ChangeNotifier {
     Map day = todayObject!['day'];
     List todayHours = todayObject!['hour'];
     Map condition = day['condition'];
-    tempMax = day['maxtemp_c'].toString();
-    tempMin = day['mintemp_c'].toString();
+    tempMax = day['maxtemp_c'].toString() + "°";
+    tempMin = day['mintemp_c'].toString() + "°";
     stateForecast = condition['text'];
     todayHoursInfo = [];
     for (int i = 0; i < todayHours.length; i++) {
       Map hourObject = todayHours[i];
       String unconvertedTime = hourObject['time'];
-      String temp = hourObject['temp_c'].toString();
+      String temp = hourObject['temp_c'].toString() + "°";
       Map condition = hourObject['condition'];
       String unconvertedIconCode = condition['icon'];
       String wind = hourObject['wind_kph'].toString();
-
       String time = unconvertedTime.substring(10, 16);
-      AssetImage imageCode;
-      if (unconvertedIconCode.contains("day")) {
-        imageCode = AssetImage(
-            "assets/images/day/" + unconvertedIconCode.substring(39, 46));
-      } else {
-        imageCode = AssetImage(
-            "assets/images/night/" + unconvertedIconCode.substring(41, 48));
-      }
+      AssetImage imageCode = convertStringToIcon(unconvertedIconCode);
       todayHoursInfo?.add(
-          HourInfo(hour: time, temp: temp, wind: wind, imageCode: imageCode));
+          TimeInfo(time: time, temp: temp, wind: wind, imageCode: imageCode));
     }
+
+    daysTimeInfo = [];
+    for (int i = 0; i < DioClient.days; i++) {
+      Map? dayObject = forecastday![i];
+      String date = dayObject!['date'];
+      date = date.substring(5, 10);
+      Map day = dayObject['day'];
+      String avgTemp = day['avgtemp_c'].toString() + "°";
+      String maxWind = day['maxwind_kph'].toString();
+      Map condition = day['condition'];
+      String unconvertedIconCode = condition['icon'];
+      AssetImage imageCode = convertStringToIcon(unconvertedIconCode);
+      daysTimeInfo?.add(TimeInfo(
+          time: date, temp: avgTemp, wind: maxWind, imageCode: imageCode));
+    }
+  }
+
+  AssetImage convertStringToIcon(String unconvertedIconCode) {
+    AssetImage imageCode;
+    if (unconvertedIconCode.contains("day")) {
+      imageCode = AssetImage(
+          "assets/images/day/" + unconvertedIconCode.substring(39, 46));
+    } else {
+      imageCode = AssetImage(
+          "assets/images/night/" + unconvertedIconCode.substring(41, 48));
+    }
+    return imageCode;
   }
 }

@@ -1,13 +1,13 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
-class HourInfo {
-  String hour;
+class TimeInfo {
+  String time;
   String temp;
   String wind;
   AssetImage imageCode;
 
-  HourInfo({
-    required this.hour,
+  TimeInfo({
+    required this.time,
     required this.temp,
     required this.wind,
     required this.imageCode,

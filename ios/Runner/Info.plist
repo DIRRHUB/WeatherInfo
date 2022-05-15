@@ -45,3 +45,5 @@
 	<false/>
 </dict>
 </plist>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>This app needs to access your location</string>

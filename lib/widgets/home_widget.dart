@@ -1,10 +1,14 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:weather_info/domain/api_clients/dio_client.dart';
 import 'package:weather_info/domain/entities/app_forecast.dart';
+import 'package:weather_info/domain/entities/location_object.dart';
+import 'package:weather_info/domain/geolocation/geolocation.dart';
 import 'package:weather_info/models/main_model.dart';
 import 'package:weather_info/resources/colors.dart';
 import 'package:weather_info/resources/images.dart';
+import 'package:weather_info/widgets/error_loading_widget.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -14,12 +18,36 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
+  final DioClient client = DioClient();
+  final Geolocation geolocation = Geolocation();
+  LocationObject locationObject = LocationObject.geolocation(null, null);
+
+  @override
+  void initState() {
+    super.initState();
+    getPositionLocation();
+  }
+
+  void getPositionLocation() async {
+    try {
+      Position? position = await geolocation.determinePosition();
+      locationObject =
+          LocationObject.geolocation(position.latitude, position.longitude);
+      print((position.latitude).toString() +
+          ", " +
+          (position.longitude).toString());
+    } catch (Exception) {
+      locationObject = LocationObject.geolocation(null, null);
+      Navigator.of(context).pushNamed('/city_menu');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    DioClient client = DioClient(); //!
-    return Scaffold(
-      body: FutureBuilder(
-          future: client.getInfo("ZHYTOMYR"),
+    if (locationObject.correct) {
+      return Scaffold(
+        body: FutureBuilder(
+          future: client.getInfo(locationObject.coordinates),
           builder:
               (BuildContext context, AsyncSnapshot<AppForecast?> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -56,10 +84,15 @@ class _HomeWidgetState extends State<HomeWidget> {
                 );
               }
             }
-            //choose location
-            return Center(child: Text(snapshot.error.toString()));
-          }),
-    );
+            return const Center(child: ErrorLoadingWidget());
+          },
+        ),
+      );
+    } else {
+      return Container(
+        color: Colors.green,
+      );
+    }
   }
 }
 
@@ -224,7 +257,7 @@ class HourValues extends StatelessWidget {
       children: [
         const SizedBox(height: 8),
         Text(
-          context.watch<MainModel>().todayHoursInfo![index].hour,
+          context.watch<MainModel>().todayHoursInfo![index].time,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w300,
@@ -277,13 +310,9 @@ class ColumnValues extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
-            DayValues(),
+            DayValues(0),
+            DayValues(1),
+            DayValues(2),
           ],
         ),
       ),
@@ -292,7 +321,11 @@ class ColumnValues extends StatelessWidget {
 }
 
 class DayValues extends StatelessWidget {
-  const DayValues({Key? key}) : super(key: key);
+  final int index;
+  const DayValues(
+    this.index, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -312,30 +345,30 @@ class DayValues extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
-            children: const [
-              Image(
+            children: [
+              const Image(
                 image: AppImages.day299,
               ),
-              VerticalDividerWidget(),
+              const VerticalDividerWidget(),
               Text(
-                "DD",
-                style: TextStyle(
+                context.watch<MainModel>().daysTimeInfo![index].time,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
                 ),
               ),
-              VerticalDividerWidget(),
+              const VerticalDividerWidget(),
               Text(
-                "TEMP",
-                style: TextStyle(
+                "Temp: " + context.watch<MainModel>().daysTimeInfo![index].temp,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              VerticalDividerWidget(),
+              const VerticalDividerWidget(),
               Text(
-                "WIND",
-                style: TextStyle(
+                "Wind: " + context.watch<MainModel>().daysTimeInfo![index].wind,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
