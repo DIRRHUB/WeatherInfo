@@ -7,5 +7,8 @@ class LocationObject {
     latitude != null && longitude != null ? correct = true : correct = false;
   }
 
-  String get coordinates => latitude.toString() + ", " + longitude.toString();
+  @override
+  String toString() {
+    return latitude.toString() + ", " + longitude.toString();
+  }
 }

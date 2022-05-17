@@ -17,7 +17,7 @@ class App extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.lightBlue,
         ),
-        home: const HomeWidget(),
+        home: const CityMenuWidget(),
         initialRoute: '/',
         routes: {
           '/home': (context) => const HomeWidget(),

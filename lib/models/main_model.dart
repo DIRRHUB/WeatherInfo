@@ -8,6 +8,7 @@ import 'package:weather_info/domain/entities/location.dart';
 
 class MainModel with ChangeNotifier {
   AppForecast? appForecast = AppForecast();
+  String? geolocation;
   Location? location;
   Current? current;
   Forecast? forecast;
@@ -18,19 +19,13 @@ class MainModel with ChangeNotifier {
   String? tempMax, tempMin;
   List<TimeInfo>? daysTimeInfo;
 
-  final DioClient _client = DioClient();
-
   AppForecast? get getAppForecast => appForecast;
   List? get getForecastday => forecastday;
   String? get getTodayStateForecast => stateForecast;
   String? get getTodayMinMaxTemperature =>
       "Min temp: " + (tempMin ?? "") + ", Max temp: " + (tempMax ?? "?");
 
-  void getInfo(String locationString) async {
-    appForecast = await _client.getInfo(locationString);
-    processData();
-    notifyListeners();
-  }
+  set setGeolocation(String geolocation) => this.geolocation = geolocation;
 
   void setInfo(AppForecast? appForecast) {
     this.appForecast = appForecast;

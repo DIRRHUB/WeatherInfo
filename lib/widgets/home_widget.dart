@@ -1,14 +1,9 @@
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:weather_info/domain/api_clients/dio_client.dart';
-import 'package:weather_info/domain/entities/app_forecast.dart';
-import 'package:weather_info/domain/entities/location_object.dart';
-import 'package:weather_info/domain/geolocation/geolocation.dart';
+
 import 'package:weather_info/models/main_model.dart';
 import 'package:weather_info/resources/colors.dart';
 import 'package:weather_info/resources/images.dart';
-import 'package:weather_info/widgets/error_loading_widget.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -18,81 +13,36 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  final DioClient client = DioClient();
-  final Geolocation geolocation = Geolocation();
-  LocationObject locationObject = LocationObject.geolocation(null, null);
-
-  @override
-  void initState() {
-    super.initState();
-    getPositionLocation();
-  }
-
-  void getPositionLocation() async {
-    try {
-      Position? position = await geolocation.determinePosition();
-      locationObject =
-          LocationObject.geolocation(position.latitude, position.longitude);
-      print((position.latitude).toString() +
-          ", " +
-          (position.longitude).toString());
-    } catch (Exception) {
-      locationObject = LocationObject.geolocation(null, null);
-      Navigator.of(context).pushNamed('/city_menu');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (locationObject.correct) {
-      return Scaffold(
-        body: FutureBuilder(
-          future: client.getInfo(locationObject.coordinates),
-          builder:
-              (BuildContext context, AsyncSnapshot<AppForecast?> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                  child: CircularProgressIndicator(strokeWidth: 3));
-            } else if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                context.watch<MainModel>().setInfo(snapshot.data);
-                return Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.primaryLightColor,
-                        AppColors.primaryDarkColor,
-                      ],
-                    ),
-                  ),
-                  child: ScrollConfiguration(
-                    behavior: CustomBehavior(),
-                    child: ListView(
-                      children: const [
-                        SizedBox(height: 32),
-                        HeadContent(),
-                        SizedBox(height: 32),
-                        RowHorizontalValues(),
-                        SizedBox(height: 32),
-                        ColumnValues(),
-                        SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                );
-              }
-            }
-            return const Center(child: ErrorLoadingWidget());
-          },
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primaryLightColor,
+              AppColors.primaryDarkColor,
+            ],
+          ),
         ),
-      );
-    } else {
-      return Container(
-        color: Colors.green,
-      );
-    }
+        child: ScrollConfiguration(
+          behavior: CustomBehavior(),
+          child: ListView(
+            children: const [
+              SizedBox(height: 32),
+              HeadContent(),
+              SizedBox(height: 32),
+              RowHorizontalValues(),
+              SizedBox(height: 32),
+              ColumnValues(),
+              SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
