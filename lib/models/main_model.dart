@@ -7,7 +7,7 @@ import 'package:weather_info/domain/entities/hour_info.dart';
 import 'package:weather_info/domain/entities/location.dart';
 
 class MainModel with ChangeNotifier {
-  AppForecast? appForecast = AppForecast();
+  AppForecast? appForecast;
   String? geolocation;
   Location? location;
   Current? current;
@@ -18,18 +18,24 @@ class MainModel with ChangeNotifier {
   String? stateForecast;
   String? tempMax, tempMin;
   List<TimeInfo>? daysTimeInfo;
+  String? titleLocationString;
 
   AppForecast? get getAppForecast => appForecast;
   List? get getForecastday => forecastday;
   String? get getTodayStateForecast => stateForecast;
   String? get getTodayMinMaxTemperature =>
-      "Min temp: " + (tempMin ?? "") + ", Max temp: " + (tempMax ?? "?");
+      "Min temp: " + (tempMin ?? "?") + ", Max temp: " + (tempMax ?? "?");
 
   set setGeolocation(String geolocation) => this.geolocation = geolocation;
+  set setTitleLocationString(String value) {
+    titleLocationString = value;
+    notifyListeners();
+  }
 
   void setInfo(AppForecast? appForecast) {
     this.appForecast = appForecast;
     processData();
+    notifyListeners();
   }
 
   void processData() {

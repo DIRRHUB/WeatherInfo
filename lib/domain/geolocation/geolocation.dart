@@ -6,7 +6,9 @@ class Geolocation {
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
     if (!serviceEnabled) {
+      Geolocator.openLocationSettings();
       return Future.error('Location services are disabled.');
     }
 
@@ -25,5 +27,9 @@ class Geolocation {
 
     return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
+  }
+
+  void requestPermission() {
+    Geolocator.requestPermission();
   }
 }

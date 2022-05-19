@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:weather_info/domain/entities/app_forecast.dart';
+import 'package:weather_info/resources/keys.dart';
 
 class DioClient {
-  final String _key = "2d0727e888454269800200243221104";
+  final String _key = Keys.weatherAPI;
   final Dio _dio = Dio();
   final String _baseUrl = 'http://api.weatherapi.com/v1';
   static const int days = 3;

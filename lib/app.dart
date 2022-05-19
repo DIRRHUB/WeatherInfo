@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weather_info/models/place_model.dart';
 import 'package:weather_info/widgets/city_menu_widget.dart';
 import 'package:weather_info/widgets/home_widget.dart';
 
@@ -10,8 +11,15 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<MainModel>(
-      create: (context) => MainModel(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<MainModel>(
+          create: (context) => MainModel(),
+        ),
+        ChangeNotifierProvider<PlaceModel>(
+          create: (context) => PlaceModel(),
+        ),
+      ],
       child: MaterialApp(
         title: 'Weather Info',
         theme: ThemeData(

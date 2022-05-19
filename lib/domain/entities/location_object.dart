@@ -1,11 +1,20 @@
 class LocationObject {
-  late bool correct;
-  final double? latitude;
-  final double? longitude;
+  String? locationString;
+  String? fullLocationString;
+  double? latitude;
+  double? longitude;
 
-  LocationObject.geolocation(this.latitude, this.longitude) {
-    latitude != null && longitude != null ? correct = true : correct = false;
-  }
+  LocationObject.geolocation(this.latitude, this.longitude);
+
+  LocationObject(
+    this.latitude,
+    this.longitude,
+    this.locationString,
+    this.fullLocationString,
+  );
+
+  get getCoordinates => latitude.toString() + ", " + longitude.toString();
+  get getLocationString => locationString;
 
   @override
   String toString() {

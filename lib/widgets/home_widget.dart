@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:weather_info/models/main_model.dart';
 import 'package:weather_info/resources/colors.dart';
 import 'package:weather_info/resources/images.dart';
+import 'package:weather_info/widgets/custom_behavior.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -56,7 +57,7 @@ class HeadContent extends StatelessWidget {
       children: [
         FittedBox(
           child: Text(
-            context.watch<MainModel>().location?.name ?? "",
+            context.watch<MainModel>().titleLocationString ?? "",
             style: const TextStyle(
               fontSize: 48,
             ),
@@ -346,13 +347,5 @@ class VerticalDividerWidget extends StatelessWidget {
         color: Colors.grey,
       ),
     );
-  }
-}
-
-class CustomBehavior extends ScrollBehavior {
-  @override
-  Widget buildViewportChrome(
-      BuildContext context, Widget child, AxisDirection axisDirection) {
-    return child;
   }
 }
